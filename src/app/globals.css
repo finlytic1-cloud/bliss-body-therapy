@@ -1,0 +1,453 @@
+/*
+ * BLISS BODY THERAPY
+ * Global styles — Tailwind v4 CSS-native config
+ *
+ * Fonts:
+ *  – Fraunces (variable): loaded via next/font/google
+ *  – Switzer: self-host for production (download from fontshare.com/fonts/switzer)
+ *    During development, loaded from Fontshare CDN below.
+ */
+
+/* ─── Fontshare: Switzer ─────────────────────────────────────────────────── */
+/* PRODUCTION NOTE: Replace this @import with next/font/local + self-hosted
+   subset files. Fontshare CDN URL for dev only. */
+@import url('https://api.fontshare.com/v2/css?f[]=switzer@100,200,300,400,500,600,700&display=swap');
+
+/* ─── Tailwind v4 ────────────────────────────────────────────────────────── */
+@import 'tailwindcss';
+
+/* ─── Design Tokens ──────────────────────────────────────────────────────── */
+@theme {
+  /* Palette */
+  --color-linen: #F5F0E8;
+  --color-ink: #221C18;
+  --color-earth: #3A302A;
+  --color-clay: #C08862;
+  --color-stone: #9A9187;
+  --color-ladybird: #B23A2F;
+
+  /* Semantic */
+  --color-surface: var(--color-linen);
+  --color-text: var(--color-ink);
+  --color-text-secondary: var(--color-stone);
+  --color-accent: var(--color-ladybird);
+  --color-rule: color-mix(in oklch, var(--color-clay) 30%, transparent);
+
+  /* Typography */
+  --font-display: var(--font-fraunces-loaded, 'Fraunces Variable'), Georgia, serif;
+  --font-body: 'Switzer', system-ui, sans-serif;
+
+  /* Type scale */
+  --text-body: 1.125rem;       /* 18px */
+  --text-body-lg: 1.25rem;     /* 20px */
+  --text-caption: 0.875rem;    /* 14px */
+  --text-label: 0.75rem;       /* 12px */
+
+  /* Leading */
+  --leading-display: 0.95;
+  --leading-body: 1.65;
+
+  /* Spacing (8pt grid) */
+  --space-px: 1px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --space-40: 10rem;
+  --space-48: 12rem;
+  --space-64: 16rem;
+
+  /* Layout */
+  --measure: 62ch;
+  --gutter: clamp(1.25rem, 5vw, 4rem);
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 400ms;
+  --duration-enter: 700ms;
+  --duration-slow: 1100ms;
+  --duration-image: 1200ms;
+  --stagger: 90ms;
+}
+
+/* ─── CSS Custom Properties (runtime, writable by JS) ───────────────────── */
+:root {
+  /* Breath (0→1→0 over a 10s cycle, written by useBreath hook) */
+  --breath: 0.5;
+
+  /* Descent (0=linen, 1=earth, written by useDescentScroll) */
+  --descent: 0;
+
+  /* Scroll-relative background */
+  --bg-current: color-mix(
+    in oklch,
+    var(--color-linen) calc((1 - var(--descent)) * 100%),
+    var(--color-earth) calc(var(--descent) * 100%)
+  );
+
+  /* Warmth cursor position (written by JS on treatments page) */
+  --cursor-x: 50%;
+  --cursor-y: 50%;
+}
+
+/* ─── Reset & Base ───────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  /* Optical margin alignment for display type */
+  hanging-punctuation: first last;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  color: var(--color-ink);
+  background-color: var(--color-linen);
+  /* Fine film grain — paper, not glass */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23grain)' opacity='0.04'/%3E%3C/svg%3E");
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grain overlay — SVG filter based, cross-browser */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: calc(0.035 + var(--breath) * 0.015);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+  mix-blend-mode: multiply;
+  transition: opacity 200ms linear;
+}
+
+/* ─── Typography Base ────────────────────────────────────────────────────── */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-variation-settings: 'SOFT' 50, 'WONK' 0;
+  line-height: var(--leading-display);
+  color: var(--color-ink);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(3rem, 9vw, 8rem);
+  font-weight: 300;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: clamp(2rem, 5vw, 4rem);
+  font-weight: 300;
+  letter-spacing: -0.015em;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+}
+
+h4 {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+p {
+  max-width: var(--measure);
+  line-height: var(--leading-body);
+}
+
+/* ─── Links ──────────────────────────────────────────────────────────────── */
+a {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+}
+
+/* Underline drawn from left on hover */
+a.link-underline {
+  display: inline-block;
+}
+
+a.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: var(--color-clay);
+  transition: width var(--duration-fast) var(--ease-out-expo);
+}
+
+a.link-underline:hover::after {
+  width: 100%;
+}
+
+/* ─── Focus Styles ───────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-ladybird);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ─── Hairline rules ─────────────────────────────────────────────────────── */
+.rule {
+  border: none;
+  border-top: 1px solid var(--color-rule);
+  width: 100%;
+}
+
+/* ─── The descent: continuous scroll-linked background ───────────────────── */
+.descent-section {
+  background-color: var(--bg-current);
+  transition: background-color 0.1s linear;
+}
+
+/* ─── Utility: max-measure ───────────────────────────────────────────────── */
+.measure {
+  max-width: var(--measure);
+}
+
+/* ─── Placeholder blocks ─────────────────────────────────────────────────── */
+.placeholder {
+  display: inline-block;
+  background-color: color-mix(in oklch, var(--color-clay) 15%, transparent);
+  border: 1px dashed var(--color-clay);
+  border-radius: 3px;
+  padding: 0.125em 0.5em;
+  font-family: var(--font-body);
+  font-size: var(--text-caption);
+  color: var(--color-stone);
+  font-style: italic;
+}
+
+/* ─── Hero layout ────────────────────────────────────────────────────────── */
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0 clamp(0.75rem, 2vw, 1.5rem);
+  flex: 1;
+}
+
+.hero-label {
+  grid-column: 9 / -1;
+  grid-row: 1;
+  align-self: start;
+  text-align: right;
+}
+
+.hero-headline-wrap {
+  grid-column: 1 / 10;
+  grid-row: 1 / 3;
+  align-self: center;
+  padding-top: clamp(2rem, 4vh, 4rem);
+}
+
+.hero-copy {
+  grid-column: 7 / -1;
+  grid-row: 3;
+  align-self: end;
+  padding-top: clamp(2rem, 4vh, 3rem);
+}
+
+@media (max-width: 900px) {
+  .hero-label {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    text-align: left;
+    margin-bottom: 1.5rem;
+  }
+  .hero-headline-wrap {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    padding-top: 0;
+  }
+  .hero-copy {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-self: start;
+    padding-top: clamp(2rem, 6vw, 3rem);
+  }
+}
+
+/* Narrower mobile: ensure hero text isn't clipped */
+@media (max-width: 480px) {
+  .hero-grid {
+    gap: 0;
+  }
+}
+
+/* ─── Header: mobile / desktop toggle ───────────────────────────────────── */
+@media (max-width: 768px) {
+  .header-desktop-nav  { display: none !important; }
+  .header-desktop-book { display: none !important; }
+  .header-mobile-btn   { display: flex !important; }
+}
+
+/* ─── ThesisSection grid ─────────────────────────────────────────────────── */
+.thesis-opener {
+  grid-column: 3 / 11;
+}
+.thesis-col-left {
+  grid-column: 1 / 8;
+}
+.thesis-col-right {
+  grid-column: 9 / -1;
+  padding-top: clamp(3rem, 8vh, 6rem);
+}
+
+@media (max-width: 900px) {
+  .thesis-opener { grid-column: 1 / -1; }
+  .thesis-col-left { grid-column: 1 / -1; }
+  .thesis-col-right { grid-column: 1 / -1; padding-top: 0; }
+}
+
+/* ─── DescentSection tier grid ───────────────────────────────────────────── */
+.descent-tier-num {
+  grid-column: 1 / 2;
+}
+.descent-tier-content {
+  grid-column: 2 / 11;
+}
+
+@media (max-width: 640px) {
+  .descent-tier-num { display: none; }
+  .descent-tier-content { grid-column: 1 / -1; }
+}
+
+/* ─── AboutPreview grid ──────────────────────────────────────────────────── */
+.about-preview-copy {
+  grid-column: 1 / 7;
+}
+.about-preview-image {
+  grid-column: 8 / -1;
+}
+
+@media (max-width: 900px) {
+  .about-preview-copy { grid-column: 1 / -1; }
+  .about-preview-image { grid-column: 1 / -1; }
+}
+
+/* ─── MeditationSection grid ─────────────────────────────────────────────── */
+.meditation-time {
+  grid-column: 1 / 5;
+}
+.meditation-copy {
+  grid-column: 5 / -1;
+}
+
+@media (max-width: 900px) {
+  .meditation-time { grid-column: 1 / -1; margin-bottom: 1.5rem; }
+  .meditation-copy { grid-column: 1 / -1; }
+}
+
+/* ─── HomeContactSection grid ────────────────────────────────────────────── */
+.contact-cta-headline {
+  grid-column: 1 / 7;
+}
+.contact-cta-body {
+  grid-column: 7 / -1;
+  padding-bottom: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .contact-cta-headline { grid-column: 1 / -1; margin-bottom: 2rem; }
+  .contact-cta-body { grid-column: 1 / -1; }
+}
+
+/* ─── Touch: minimum tap target for interactive elements ─────────────────── */
+button,
+[type='submit'],
+[type='button'],
+[type='reset'],
+select {
+  min-height: 44px;
+}
+
+input[type='text'],
+input[type='email'],
+input[type='tel'],
+textarea {
+  min-height: 44px;
+  /* Remove iOS tap highlight */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent iOS zoom on input focus (requires font-size >= 16px at input level) */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* ─── About page grid ────────────────────────────────────────────────────── */
+.about-image-col { grid-column: 1 / 5; }
+.about-copy-col  { grid-column: 5 / -1; }
+
+@media (max-width: 900px) {
+  .about-image-col { grid-column: 1 / -1; }
+  .about-copy-col  { grid-column: 1 / -1; }
+}
+
+/* ─── Philosophy section ─────────────────────────────────────────────────── */
+.philosophy-col { grid-column: 1 / 9; }
+
+@media (max-width: 900px) {
+  .philosophy-col { grid-column: 1 / -1; }
+}
+
+/* ─── Inner page body column (most content pages) ────────────────────────── */
+.inner-body-col { grid-column: 1 / 9; }
+
+@media (max-width: 900px) {
+  .inner-body-col { grid-column: 1 / -1; }
+}
+
+/* ─── Contact page grid ──────────────────────────────────────────────────── */
+.contact-form-col    { grid-column: 1 / 8; }
+.contact-details-col { grid-column: 9 / -1; }
+
+@media (max-width: 900px) {
+  .contact-form-col    { grid-column: 1 / -1; }
+  .contact-details-col { grid-column: 1 / -1; }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    opacity: 0.03; /* static grain, no breath modulation */
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
